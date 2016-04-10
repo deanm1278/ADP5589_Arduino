@@ -2,8 +2,10 @@
  * 
  * Arduino library for the ADP5589 keypad controller
  * April 7, 2016 Dean Miller
+ * MIT license
  * 
- * most of the register definitions are from this file (and also in the datasheet):
+ * most of the register definitions copy pasted from this file (and also in
+ * the datasheet) so I did not have to rewrite:
  * https://github.com/analogdevicesinc/no-OS/blob/master/drivers/ADP5589/ADP5589.h#L201
  * /***************************************************************************//**
  *   @file   ADP5589.h
@@ -25,6 +27,7 @@
  #include "WProgram.h"
 #endif
 
+//not tested with this little guy
 #ifdef __AVR_ATtiny85__
   #include <TinyWireM.h>
 #else
@@ -307,11 +310,25 @@
 #define ADP5589_INPUT                                   0
 #define ADP5589_OUTPUT                                  1
 
-#define ADP5589_RISING                                  0x00
-#define ADP5589_FALLING                                 0x01
-#define ADP5589_RISING_FALLING                          0x02
-#define ADP5589_HIGH                                    0x03
-#define ADP5589_LOW                                     0x04
+#define ADP5589_RISING                                  0xFF
+#define ADP5589_FALLING                                 0xF7
+#define ADP5589_HIGH                                    0xF6
+#define ADP5589_LOW                                     0xF5
+
+#define ADP5589_NUM_COLUMNS                             11
+
+#define MAX_EVENTS                                      100
+
+struct callback{
+    int (*callback)(void);
+    uint8_t callbackType;
+    uint8_t evtIndex;
+};
+
+struct event{
+    uint8_t number;
+    uint8_t status;
+};
 
 class ADP5589{
 public:
@@ -321,8 +338,8 @@ public:
     void activateRow(uint8_t row); //mark a row for reading by the key scanner
     void activateColumn(uint8_t col); //mark column for reading by key scanner
     
-    //register a callback for a given key
-    void registerCallback(uint8_t row, uint8_t col, uint8_t type, int (*fn)(void));
+    //register a callback for a given key. return 0 on success, 1 on failure
+    bool registerCallback(uint8_t row, uint8_t col, int (*fn)(void), uint8_t type);
     
     //read all events in the fifo, call any callbacks
     void update(void);
@@ -337,6 +354,13 @@ public:
     void init(uint8_t a);
 private:
     uint8_t i2c_addr;
+    uint8_t numEvents;
+    event *eventMatrix[MAX_EVENTS];
+    uint8_t numCallbacks;
+    callback *callbacks[MAX_EVENTS];
+    
+    void createEventMatrix(void);
+    uint8_t getEvent(uint8_t row, uint8_t col);
 };
 
 #endif
