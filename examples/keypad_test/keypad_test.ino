@@ -80,8 +80,9 @@ void loop() {
 }
 
 //callback definition
-int blinkLed(void){
-  Serial.println("callback called!");
+int blinkLed(int evt){
+  Serial.print("callback called! event number ");
+  Serial.println(evt);
 
   //turn LED on
   keypad.gpioWrite(5, HIGH);

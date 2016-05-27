@@ -320,7 +320,7 @@
 #define MAX_EVENTS                                      100
 
 struct callback{
-    int (*callback)(void);
+    int (*callback)(int evt);
     uint8_t callbackType;
     uint8_t evtIndex;
 };
@@ -339,7 +339,7 @@ public:
     void activateColumn(uint8_t col); //mark column for reading by key scanner
     
     //register a callback for a given key. return 0 on success, 1 on failure
-    bool registerCallback(uint8_t row, uint8_t col, int (*fn)(void), uint8_t type);
+    bool registerCallback(uint8_t row, uint8_t col, int (*fn)(int evt), uint8_t type);
     
     //read all events in the fifo, call any callbacks
     void update(void);

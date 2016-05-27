@@ -103,11 +103,11 @@ void ADP5589::update(void){
         callback *cb = callbacks[i];
         event *evt = eventMatrix[cb->evtIndex];
         if(cb->callbackType == evt->status)
-            cb->callback();
+            cb->callback(evt->number);
     }
 }
 
-bool ADP5589::registerCallback(uint8_t row, uint8_t col, int (*fn)(void), uint8_t type){
+bool ADP5589::registerCallback(uint8_t row, uint8_t col, int (*fn)(int evt), uint8_t type){
     uint8_t evtNumber = getEvent(row, col);
     for(int j=0; j<numEvents; j++){
         event *e = eventMatrix[j];
